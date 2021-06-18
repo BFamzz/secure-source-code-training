@@ -1,0 +1,11 @@
+version: '3.8'
+
+services: 
+    postgres-db:
+        image: postgres
+        container_name: postgres-db
+        restart: unless-stopped
+    env_file: : 
+        - postgres.env
+    networks: 
+        - app-network
