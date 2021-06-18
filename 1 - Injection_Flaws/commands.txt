@@ -1,5 +1,0 @@
-// Build staging image
-docker build --rm --no-cache -t staging staging
-
-// Build final image
-docker-compose up -d --build
