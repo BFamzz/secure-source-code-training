@@ -1,0 +1,1 @@
+docker build --rm --no-cache -t base_image:latest .
