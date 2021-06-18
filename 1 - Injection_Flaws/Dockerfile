@@ -2,7 +2,7 @@ FROM staging
 WORKDIR /injection-flaws
 COPY . .
 WORKDIR /injection-flaws/build
-RUN cmake \
+RUN apt -qq -y install postgresql-client && cmake \
     -I/usr/local/include/ppxx \
     -L/usr/local/lib \
     -DPostgreSQL_TYPE_INCLUDE_DIR=/usr/include/postgresql \
