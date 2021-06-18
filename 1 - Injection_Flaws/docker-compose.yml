@@ -5,7 +5,27 @@ services:
         image: postgres
         container_name: postgres-db
         restart: unless-stopped
-    env_file: : 
-        - postgres.env
-    networks: 
-        - app-network
+        env_file:
+            - ./app.env
+        networks: 
+            - app-network
+
+    injection-flaws:
+        build: 
+            context: .
+            dockerfile: Dockerfile
+        image: injection-flaws
+        container_name: injection-flaws
+        restart: unless-stopped
+        networks:
+            - app-network
+        ports: 
+            - 80:80
+        env_file: 
+            - ./app.env
+        depends_on: 
+            - postgres-db
+
+networks:
+    app-network:
+        driver: bridge

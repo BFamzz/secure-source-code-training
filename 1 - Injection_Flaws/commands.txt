@@ -1,0 +1,7 @@
+docker build --rm --no-cache -t staging staging
+
+docker build --rm --no-cache -t injection_flaws .
+
+OR 
+
+docker-compose up -d --build
