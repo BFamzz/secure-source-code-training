@@ -3,3 +3,6 @@ docker build --rm --no-cache -t staging staging
 
 // Build final image
 docker-compose up -d --build
+
+// Run populate_db script
+docker exec -it <container_name> /bin/bash

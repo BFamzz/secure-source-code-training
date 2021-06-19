@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <vector>
 
 #include "crow_all.h"
 #include <pqxx/pqxx>
@@ -10,6 +11,7 @@ std::string getView(const std::string &filename, crow::mustache::context &x);
 int main(int argc, char *argv[])
 {
     crow::SimpleApp app;
+    crow::mustache::set_base(".");
     std::string databaseHost{"postgres-db"};
     std::string databaseName{std::getenv("POSTGRES_DB")};
     std::string databaseUser{std::getenv("POSTGRES_USER")};
@@ -28,10 +30,8 @@ int main(int argc, char *argv[])
         return crow::response(200);
     });
 
-    CROW_ROUTE(app, "/api/training/users").methods(crow::HTTPMethod::Get)
-    ([&databaseConnection, &nonTransation](const crow::request &req) {
-        // For POST methods
-        //crow::json::rvalue data = crow::json::load(req.body);
+    CROW_ROUTE(app, "/api/users").methods(crow::HTTPMethod::Get)
+    ([&databaseConnection, &nonTransation]() {
         crow::json::wvalue dataTransferObject;
         std::string query{
             "SELECT * FROM gtworld_users;"
@@ -49,8 +49,8 @@ int main(int argc, char *argv[])
             {
                 dataTransferObject["status"] = true;
                 dataTransferObject["message"] = "Request Successful!";
-                std::vector<crow::json::wvalue> data;
-                data.reserve(queryResult.size());
+                std::vector<crow::json::wvalue> users;
+                users.reserve(queryResult.size());
                 for (const pqxx::row row : queryResult) 
                 {
                     crow::json::wvalue user;
@@ -71,16 +71,18 @@ int main(int argc, char *argv[])
                             }
                         }
                     }
-                    data.push_back(std::move(user));
+                    users.push_back(std::move(user));
                 }
-                dataTransferObject["data"] = std::move(data);
-                return crow::response(200, dataTransferObject);
+                dataTransferObject["users"] = std::move(users);
+                //return crow::response(200, dataTransferObject);
+                std::cout << "View is: " << getView("users", dataTransferObject) << '\n';
+                return crow::response(200, getView("users", dataTransferObject));
             }
         }
-        catch(const std::exception& e)
+        catch(const std::exception &e)
         {
             std::cerr << e.what() << '\n';
-            return crow::response(400, "Please try again!");
+            return crow::response(404, getView("error", dataTransferObject));
         }     
     });
 
@@ -96,5 +98,5 @@ int main(int argc, char *argv[])
 
 std::string getView(const std::string &filename, crow::mustache::context &x)
 {
-    return crow::mustache::load(filename + ".html").render(x);
+    return crow::mustache::load("../html/" + filename + ".html").render(x);
 }

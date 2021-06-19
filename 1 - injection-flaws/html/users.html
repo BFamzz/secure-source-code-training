@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>GTWorld Users</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    </head>
+    <body>
+        <section class="section">
+            <div class="content">
+                <h1 class="title">Users</h1>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Middle Name</th>
+                            <th>Last Name</th>
+                            <th>Account Number</th>
+                            <th>Card Pan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#users}}
+                        <tr>
+                            <td>{{first_name}}</td>
+                            <td>{{middle_name}}</td>
+                            <td>{{last_name}}</td>
+                            <td>{{account_number}}</td>
+                            <td>{{card_pan}}</td>
+                        </tr>
+                        {{/users}}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </body>
+</html>
