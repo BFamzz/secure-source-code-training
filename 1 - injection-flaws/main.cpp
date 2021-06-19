@@ -86,6 +86,60 @@ int main(int argc, char *argv[])
         }     
     });
 
+    CROW_ROUTE(app, "/api/users/<string>").methods(crow::HTTPMethod::Get)
+    ([&databaseConnection, &nonTransation] (std::string firstName) {
+        crow::json::wvalue dataTransferObject;
+        std::string query{
+            "SELECT * FROM gtworld_users WHERE first_name = '" + firstName + "';" // Potential SQL Injection
+        };
+        try
+        {
+            pqxx::result queryResult{ nonTransation.exec(query) };
+            if (queryResult.size() < 1) 
+            {
+                dataTransferObject["status"] = true;
+                dataTransferObject["message"] = "No users!";
+                return crow::response(200, dataTransferObject);
+            }
+            else
+            {
+                dataTransferObject["status"] = true;
+                dataTransferObject["message"] = "Request Successful!";
+                std::vector<crow::json::wvalue> users;
+                users.reserve(queryResult.size());
+                for (const pqxx::row row : queryResult) 
+                {
+                    crow::json::wvalue user;
+                    for (const pqxx::field field : row)
+                    {
+                        if (!field.is_null())
+                        {
+                            // use PostgreSQL oid datatype from pg_type() table
+                            switch (field.type())
+                            {
+                                case 1043:
+                                    user[field.name()] = field.as<std::string>();
+                                    break;
+                                case 23:  
+                                    user[field.name()] = field.as<int>();                              
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    users.push_back(std::move(user));
+                }
+                dataTransferObject["users"] = std::move(users);
+                return crow::response(200, getView("users", dataTransferObject));
+            }
+        }
+        catch(const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+            return crow::response(404, getView("error", dataTransferObject));
+        }
+    });
+
     char *port = std::getenv("PORT");
 	uint16_t iPort = static_cast<uint16_t>(port != nullptr ? std::stoi(port) : 18080);
 

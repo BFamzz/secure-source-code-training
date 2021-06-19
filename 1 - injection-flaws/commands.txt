@@ -4,5 +4,14 @@ docker build --rm --no-cache -t staging staging
 // Build final image
 docker-compose up -d --build
 
+//Enable database logging
+docker exec -it postgres-db /bin/bash
+
+// Configuration file location
+nano /var/lib/postgresql/data/postgresql.conf
+
+// Restart postgresql 
+systemctl restart postgresql
+
 // Run populate_db script
-docker exec -it <container_name> /bin/bash
+docker exec -it injection-flaws /bin/bash
