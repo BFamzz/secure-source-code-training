@@ -145,12 +145,13 @@ int main(int argc, char *argv[])
         crow::json::wvalue dataTransferObject;
         std::string firstName = req.url_params.get("first_name");
         std::string query{
-            "SELECT * FROM gtworld_users WHERE first_name = '" + firstName + "';" // Potential SQL Injection
+            "SELECT * FROM gtworld_users WHERE first_name = $1;" // Potential SQL Injection
         };
 
         try
         {
-            pqxx::result queryResult{ nonTransation.exec(query) };
+            databaseConnection.prepare("", query);
+            pqxx::result queryResult{ nonTransation.exec_prepared("", firstName) };
             if (queryResult.size() < 1) 
             {
                 dataTransferObject["status"] = true;
@@ -210,3 +211,8 @@ std::string getView(const std::string &filename, crow::mustache::context &x)
 {
     return crow::mustache::load("../html/" + filename + ".html").render(x);
 }
+
+
+//localhost/api/getFirstName?first_name=Drake
+//URL-ENCODED//%27;CREATE%20TABLE%20hacked%20(name%20VARCHAR(10));--
+//Drake';CREATE TABLE hacked (name VARCHAR(20));--
