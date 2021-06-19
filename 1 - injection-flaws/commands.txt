@@ -4,6 +4,12 @@ docker build --rm --no-cache -t staging staging
 // Build final image
 docker-compose up -d --build
 
+// Confirm services are up and running
+docker-compose ps
+
+// To stop all services
+docker-compose down
+
 //Enable database logging
 docker exec -it postgres-db /bin/bash
 
@@ -15,3 +21,8 @@ systemctl restart postgresql
 
 // Run populate_db script
 docker exec -it injection-flaws /bin/bash
+
+// To install nano
+apt update
+apt install nano
+apt install net-tools systemd
